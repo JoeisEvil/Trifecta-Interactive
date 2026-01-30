@@ -126,7 +126,7 @@ export function MuteButton() {
       ref={containerRef}
       style={{
         position: 'fixed',
-        top: '1rem',
+        top: '5rem',
         right: '1rem',
         zIndex: 1000,
         display: 'flex',
@@ -193,10 +193,14 @@ export function MuteButton() {
           padding: '0.75rem',
           backdropFilter: 'blur(8px)',
           overflow: 'hidden',
-          maxHeight: isOpen ? '120px' : '0',
+          maxHeight: isOpen ? '160px' : '0',
           opacity: isOpen ? 1 : 0,
           transition: 'all 0.3s ease-out',
           pointerEvents: isOpen ? 'auto' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.5rem',
         }}
       >
         <input
@@ -231,6 +235,50 @@ export function MuteButton() {
             e.currentTarget.style.opacity = '0.65';
           }}
         />
+
+        {/* Instant mute button */}
+        <button
+          onClick={() => {
+            setIsMuted(true);
+            setIsAnimating(true);
+            setIsOpen(false);
+          }}
+          aria-label="Mute"
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            outline: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background 0.2s ease-out',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+          }}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.8)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        </button>
       </div>
     </div>
   );
