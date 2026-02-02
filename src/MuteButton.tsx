@@ -42,6 +42,10 @@ export function MuteButton() {
       setIsOpen(true);
       if (isMuted) {
         setIsMuted(false);
+        // Resume audio context if suspended (required for mobile)
+        if (engine?.state === 'suspended') {
+          engine.resume();
+        }
       }
     } else {
       // Closing: just close, don't mute
@@ -60,6 +64,10 @@ export function MuteButton() {
       setIsMuted(true);
     } else if (isMuted) {
       setIsMuted(false);
+      // Resume audio context if suspended (required for mobile)
+      if (engine?.state === 'suspended') {
+        engine.resume();
+      }
     }
   };
 

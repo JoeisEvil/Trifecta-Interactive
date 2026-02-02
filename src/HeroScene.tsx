@@ -22,18 +22,11 @@ const STAR_COUNT = 1000;
 const STAR_SPEED = 1;
 
 function calculateRadius(width: number): number {
-  // Mobile: 1, Desktop (1024+): 2.5
-  // Linear interpolation between 480px and 1024px
-  const minWidth = 480;
-  const maxWidth = 1024;
+  // Scale radius with window width, keeping minimum of 1 for mobile consistency
   const minRadius = 1;
-  const maxRadius = 2.5;
+  const scaleFactor = 550; // Divisor to convert pixels to 3D units
 
-  if (width <= minWidth) return minRadius;
-  if (width >= maxWidth) return maxRadius;
-
-  const t = (width - minWidth) / (maxWidth - minWidth);
-  return minRadius + t * (maxRadius - minRadius);
+  return Math.max(minRadius, width / scaleFactor);
 }
 
 function useResponsiveOrbitRadius() {
@@ -189,8 +182,18 @@ function Pyramid({ directionRef, speedRef, emissiveIntensity, orbitRadius, angle
     <mesh
       ref={meshRef}
       position={[x, 0, z]}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={(e) => {
+        if (e.pointerType === 'mouse') setHovered(true);
+      }}
+      onPointerOut={(e) => {
+        if (e.pointerType === 'mouse') setHovered(false);
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === 'touch') setHovered(true);
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType === 'touch') setHovered(false);
+      }}
     >
       <coneGeometry args={[0.6, 1.2, 4]} />
       <meshStandardMaterial
@@ -291,8 +294,18 @@ function Cube({ directionRef, speedRef, emissiveIntensity, orbitRadius, angleOff
     <mesh
       ref={meshRef}
       position={[x, 0, z]}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={(e) => {
+        if (e.pointerType === 'mouse') setHovered(true);
+      }}
+      onPointerOut={(e) => {
+        if (e.pointerType === 'mouse') setHovered(false);
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === 'touch') setHovered(true);
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType === 'touch') setHovered(false);
+      }}
     >
       <boxGeometry args={[0.8, 0.8, 0.8]} />
       <meshStandardMaterial
@@ -400,8 +413,18 @@ function Sphere({ directionRef, speedRef, emissiveIntensity, orbitRadius, angleO
     <mesh
       ref={meshRef}
       position={[x, 0, z]}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={(e) => {
+        if (e.pointerType === 'mouse') setHovered(true);
+      }}
+      onPointerOut={(e) => {
+        if (e.pointerType === 'mouse') setHovered(false);
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === 'touch') setHovered(true);
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType === 'touch') setHovered(false);
+      }}
     >
       <sphereGeometry args={[0.5, 32, 32]} />
       <meshStandardMaterial
