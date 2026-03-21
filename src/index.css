@@ -26,4 +26,5 @@ body {
   width: 100vw !important;
   height: 100vh !important;
   z-index: 0;
+  pointer-events: none;
 }
