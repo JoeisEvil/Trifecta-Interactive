@@ -8,7 +8,7 @@ function App() {
       <div className="app">
         <MuteButton />
         <button
-          onClick={() => xrStore.enterVR()}
+          onClick={() => xrStore.enterVR().catch((e: unknown) => console.error('Enter VR failed:', e))}
           style={{
             position: 'fixed',
             bottom: '2rem',
