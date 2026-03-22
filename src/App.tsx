@@ -1,14 +1,17 @@
 import HeroScene, { xrStore } from './HeroScene'
-import { AudioProvider } from './AudioProvider'
+import { AudioProvider, useAudio } from './AudioProvider'
 import { MuteButton } from './MuteButton'
 
-function App() {
+function AppContent() {
+  const { resume } = useAudio();
   return (
-    <AudioProvider>
-      <div className="app">
-        <MuteButton />
-        <button
-          onClick={() => xrStore.enterVR().catch((e: unknown) => console.error('Enter VR failed:', e))}
+    <div className="app">
+      <MuteButton />
+      <button
+        onClick={() => {
+          resume().catch(() => {});
+          xrStore.enterVR().catch((e: unknown) => console.error('Enter VR failed:', e));
+        }}
           style={{
             position: 'fixed',
             bottom: '2rem',
@@ -30,6 +33,13 @@ function App() {
         </button>
         <HeroScene />
       </div>
+  );
+}
+
+function App() {
+  return (
+    <AudioProvider>
+      <AppContent />
     </AudioProvider>
   )
 }
