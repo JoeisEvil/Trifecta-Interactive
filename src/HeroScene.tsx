@@ -480,7 +480,8 @@ function OrbitingShapes({ grabVelocityRef, orbitRadius, engine }: OrbitingShapes
   );
 }
 
-function PostProcessing() {
+function PostProcessing({ disabled }: { disabled?: boolean }) {
+  if (disabled) return null;
   return (
     <EffectComposer>
       <Bloom
@@ -523,13 +524,13 @@ function Scene({ orbitRadius, engine }: SceneProps) {
       <Stars
         radius={100}
         depth={50}
-        count={STAR_COUNT}
+        count={isInVR ? 300 : STAR_COUNT}
         factor={2}
         saturation={0}
         fade
         speed={STAR_SPEED}
       />
-      <PostProcessing />
+      <PostProcessing disabled={isInVR} />
     </>
   );
 }
