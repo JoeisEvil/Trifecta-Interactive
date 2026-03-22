@@ -4,13 +4,19 @@ import { useAudio } from './AudioProvider';
 const DEFAULT_VOLUME = 0.7;
 const MAX_VOLUME = 1.2;
 
-export function MuteButton() {
+export function MuteButton({ forceUnmute }: { forceUnmute?: boolean }) {
   const { engine } = useAudio();
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [isMuted, setIsMuted] = useState(true); // Start muted
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (forceUnmute && isMuted) {
+      setIsMuted(false);
+    }
+  }, [forceUnmute, isMuted]);
 
   useEffect(() => {
     if (engine) {

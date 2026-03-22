@@ -1,17 +1,18 @@
+import { useState } from 'react'
 import HeroScene, { xrStore } from './HeroScene'
 import { AudioProvider, useAudio } from './AudioProvider'
 import { MuteButton } from './MuteButton'
 
 function AppContent() {
-  const { engine, resume } = useAudio();
+  const { resume } = useAudio();
+  const [vrUnmuted, setVrUnmuted] = useState(false);
   return (
     <div className="app">
-      <MuteButton />
+      <MuteButton forceUnmute={vrUnmuted} />
       <button
         onClick={() => {
-          resume().then(() => {
-            if (engine) engine.masterVolume = 0.7;
-          }).catch(() => {});
+          setVrUnmuted(true);
+          resume().catch(() => {});
           xrStore.enterVR().catch((e: unknown) => console.error('Enter VR failed:', e));
         }}
           style={{
