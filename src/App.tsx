@@ -3,13 +3,15 @@ import { AudioProvider, useAudio } from './AudioProvider'
 import { MuteButton } from './MuteButton'
 
 function AppContent() {
-  const { resume } = useAudio();
+  const { engine, resume } = useAudio();
   return (
     <div className="app">
       <MuteButton />
       <button
         onClick={() => {
-          resume().catch(() => {});
+          resume().then(() => {
+            if (engine) engine.masterVolume = 0.7;
+          }).catch(() => {});
           xrStore.enterVR().catch((e: unknown) => console.error('Enter VR failed:', e));
         }}
           style={{
