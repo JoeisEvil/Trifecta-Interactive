@@ -528,6 +528,33 @@ function Scene({ orbitRadius, engine }: SceneProps) {
       engine.masterVolume = 0.7;
       console.log('[VR Audio] Set master volume to 0.7');
 
+      // Test 1: Raw oscillator on existing context
+      console.log('[VR Audio] Test 1: Beep on existing context...');
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      gain1.gain.value = 0.3;
+      osc1.frequency.value = 440;
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 1);
+      console.log('[VR Audio] Test 1: Oscillator started at', ctx.currentTime);
+
+      // Test 2: Fresh AudioContext
+      setTimeout(() => {
+        console.log('[VR Audio] Test 2: Beep on FRESH context...');
+        const freshCtx = new AudioContext();
+        const osc2 = freshCtx.createOscillator();
+        const gain2 = freshCtx.createGain();
+        gain2.gain.value = 0.3;
+        osc2.frequency.value = 880;
+        osc2.connect(gain2);
+        gain2.connect(freshCtx.destination);
+        osc2.start();
+        osc2.stop(freshCtx.currentTime + 1);
+        console.log('[VR Audio] Test 2: Fresh context state:', freshCtx.state);
+      }, 2000);
+
       // Force restart all sounds
       for (const id of engine.getSoundIds()) {
         const sound = engine.getSound(id);
