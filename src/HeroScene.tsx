@@ -521,38 +521,61 @@ function Scene({ orbitRadius, engine }: SceneProps) {
     console.log('[VR Audio] Sound IDs:', engine.getSoundIds());
 
     const resumeAndPlay = async () => {
+      // Log available audio devices
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const outputs = devices.filter(d => d.kind === 'audiooutput');
+        console.log('[VR Audio] Available outputs:', outputs.map(d => `${d.label} (${d.deviceId})`));
+      } catch (e) {
+        console.log('[VR Audio] Could not enumerate devices:', e);
+      }
+
       if (ctx.state === 'suspended') {
         await ctx.resume();
         console.log('[VR Audio] Context resumed, new state:', ctx.state);
       }
+
+      // Log current sinkId
+      console.log('[VR Audio] Context sinkId:', (ctx as any).sinkId);
+
       engine.masterVolume = 0.7;
-      console.log('[VR Audio] Set master volume to 0.7');
 
-      // Test 1: Raw oscillator on existing context
-      console.log('[VR Audio] Test 1: Beep on existing context...');
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      gain1.gain.value = 0.3;
-      osc1.frequency.value = 440;
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-      osc1.start();
-      osc1.stop(ctx.currentTime + 1);
-      console.log('[VR Audio] Test 1: Oscillator started at', ctx.currentTime);
+      // Test 1: HTML <audio> element (bypasses Web Audio API entirely)
+      console.log('[VR Audio] Test 1: HTML audio element...');
+      const audio = new Audio('/sound/Pyramid_1beat_120.wav');
+      audio.volume = 1.0;
+      audio.play().then(() => {
+        console.log('[VR Audio] Test 1: HTML audio playing!');
+      }).catch((e) => {
+        console.error('[VR Audio] Test 1: HTML audio failed:', e);
+      });
 
-      // Test 2: Fresh AudioContext
-      setTimeout(() => {
-        console.log('[VR Audio] Test 2: Beep on FRESH context...');
-        const freshCtx = new AudioContext();
-        const osc2 = freshCtx.createOscillator();
-        const gain2 = freshCtx.createGain();
-        gain2.gain.value = 0.3;
-        osc2.frequency.value = 880;
-        osc2.connect(gain2);
-        gain2.connect(freshCtx.destination);
-        osc2.start();
-        osc2.stop(freshCtx.currentTime + 1);
-        console.log('[VR Audio] Test 2: Fresh context state:', freshCtx.state);
+      // Test 2: Try setSinkId on a fresh context
+      setTimeout(async () => {
+        console.log('[VR Audio] Test 2: Fresh context with default sinkId...');
+        try {
+          const freshCtx = new AudioContext();
+          console.log('[VR Audio] Test 2: Fresh context state:', freshCtx.state, 'sinkId:', (freshCtx as any).sinkId);
+          if (freshCtx.state === 'suspended') await freshCtx.resume();
+
+          // Try setSinkId to empty string (default device)
+          if ('setSinkId' in freshCtx) {
+            await (freshCtx as any).setSinkId('');
+            console.log('[VR Audio] Test 2: setSinkId to default succeeded');
+          }
+
+          const osc = freshCtx.createOscillator();
+          const gain = freshCtx.createGain();
+          gain.gain.value = 0.5;
+          osc.frequency.value = 440;
+          osc.connect(gain);
+          gain.connect(freshCtx.destination);
+          osc.start();
+          osc.stop(freshCtx.currentTime + 2);
+          console.log('[VR Audio] Test 2: Oscillator started');
+        } catch (e) {
+          console.error('[VR Audio] Test 2 error:', e);
+        }
       }, 2000);
 
       // Force restart all sounds
@@ -561,7 +584,6 @@ function Scene({ orbitRadius, engine }: SceneProps) {
         if (sound?.isLoaded) {
           sound.stop();
           sound.play();
-          console.log('[VR Audio] Restarted sound:', id);
         }
       }
     };
