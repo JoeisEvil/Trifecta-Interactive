@@ -510,6 +510,38 @@ function Scene({ orbitRadius, engine }: SceneProps) {
   const isInVR = useXR((xr) => xr.mode === 'immersive-vr');
   const activeRadius = isInVR ? VR_ORBIT_RADIUS : orbitRadius;
 
+  useEffect(() => {
+    if (!isInVR || !engine) return;
+
+    const ctx = engine.getContext();
+    console.log('[VR Audio] Entered VR');
+    console.log('[VR Audio] Context state:', ctx.state);
+    console.log('[VR Audio] Engine isReady:', engine.isReady);
+    console.log('[VR Audio] Master volume:', engine.masterVolume);
+    console.log('[VR Audio] Sound IDs:', engine.getSoundIds());
+
+    const resumeAndPlay = async () => {
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+        console.log('[VR Audio] Context resumed, new state:', ctx.state);
+      }
+      engine.masterVolume = 0.7;
+      console.log('[VR Audio] Set master volume to 0.7');
+
+      // Force restart all sounds
+      for (const id of engine.getSoundIds()) {
+        const sound = engine.getSound(id);
+        if (sound?.isLoaded) {
+          sound.stop();
+          sound.play();
+          console.log('[VR Audio] Restarted sound:', id);
+        }
+      }
+    };
+
+    resumeAndPlay().catch((e) => console.error('[VR Audio] Error:', e));
+  }, [isInVR, engine]);
+
   return (
     <>
       <color attach="background" args={['#0a0a0a']} />
