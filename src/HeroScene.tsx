@@ -514,71 +514,9 @@ function Scene({ orbitRadius, engine }: SceneProps) {
     if (!isInVR || !engine) return;
 
     const ctx = engine.getContext();
-    console.log('[VR Audio] Entered VR');
-    console.log('[VR Audio] Context state:', ctx.state);
-    console.log('[VR Audio] Engine isReady:', engine.isReady);
-    console.log('[VR Audio] Master volume:', engine.masterVolume);
-    console.log('[VR Audio] Sound IDs:', engine.getSoundIds());
-
     const resumeAndPlay = async () => {
-      // Log available audio devices
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const outputs = devices.filter(d => d.kind === 'audiooutput');
-        console.log('[VR Audio] Available outputs:', outputs.map(d => `${d.label} (${d.deviceId})`));
-      } catch (e) {
-        console.log('[VR Audio] Could not enumerate devices:', e);
-      }
-
-      if (ctx.state === 'suspended') {
-        await ctx.resume();
-        console.log('[VR Audio] Context resumed, new state:', ctx.state);
-      }
-
-      // Log current sinkId
-      console.log('[VR Audio] Context sinkId:', (ctx as any).sinkId);
-
+      if (ctx.state === 'suspended') await ctx.resume();
       engine.masterVolume = 0.7;
-
-      // Test 1: HTML <audio> element (bypasses Web Audio API entirely)
-      console.log('[VR Audio] Test 1: HTML audio element...');
-      const audio = new Audio('/sound/Pyramid_1beat_120.wav');
-      audio.volume = 1.0;
-      audio.play().then(() => {
-        console.log('[VR Audio] Test 1: HTML audio playing!');
-      }).catch((e) => {
-        console.error('[VR Audio] Test 1: HTML audio failed:', e);
-      });
-
-      // Test 2: Try setSinkId on a fresh context
-      setTimeout(async () => {
-        console.log('[VR Audio] Test 2: Fresh context with default sinkId...');
-        try {
-          const freshCtx = new AudioContext();
-          console.log('[VR Audio] Test 2: Fresh context state:', freshCtx.state, 'sinkId:', (freshCtx as any).sinkId);
-          if (freshCtx.state === 'suspended') await freshCtx.resume();
-
-          // Try setSinkId to empty string (default device)
-          if ('setSinkId' in freshCtx) {
-            await (freshCtx as any).setSinkId('');
-            console.log('[VR Audio] Test 2: setSinkId to default succeeded');
-          }
-
-          const osc = freshCtx.createOscillator();
-          const gain = freshCtx.createGain();
-          gain.gain.value = 0.5;
-          osc.frequency.value = 440;
-          osc.connect(gain);
-          gain.connect(freshCtx.destination);
-          osc.start();
-          osc.stop(freshCtx.currentTime + 2);
-          console.log('[VR Audio] Test 2: Oscillator started');
-        } catch (e) {
-          console.error('[VR Audio] Test 2 error:', e);
-        }
-      }, 2000);
-
-      // Force restart all sounds
       for (const id of engine.getSoundIds()) {
         const sound = engine.getSound(id);
         if (sound?.isLoaded) {
@@ -587,8 +525,7 @@ function Scene({ orbitRadius, engine }: SceneProps) {
         }
       }
     };
-
-    resumeAndPlay().catch((e) => console.error('[VR Audio] Error:', e));
+    resumeAndPlay().catch(console.error);
   }, [isInVR, engine]);
 
   return (
