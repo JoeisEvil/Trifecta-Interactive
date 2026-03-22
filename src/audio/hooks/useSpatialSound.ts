@@ -59,11 +59,11 @@ export function useSpatialSound(
   }, [engine, id]);
 
   const play = useCallback(() => {
-    if (soundRef.current?.isLoaded && engine?.isReady) {
+    if (soundRef.current?.isLoaded) {
       soundRef.current.play();
       setState('playing');
     }
-  }, [engine]);
+  }, []);
 
   const stop = useCallback(() => {
     if (soundRef.current) {
